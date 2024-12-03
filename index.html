@@ -1,0 +1,155 @@
+<!DOCTYPE html> 
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dosage Calculation</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #f2f2f2, #c2c2c2);
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            justify-content: center;
+        }
+
+        input, button {
+            padding: 5px;
+            font-size: 18px;
+            margin-bottom: 5px;
+            width: 250px;
+            text-align: center;
+        }
+
+        #result {
+            font-size: 40px;
+            margin-top: 5px;
+        }
+
+        #time {
+            font-size: 40px;
+            color: black;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        #start, #stop, #calculate {
+            width: 240px;
+            height: 65px;
+            border-radius: 50px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: transform 0.1s;
+        }
+
+        #start {
+            background-color: green;
+        }
+
+        #start:hover {
+            background-color: darkgreen;
+        }
+
+        #stop {
+            background-color: red;
+        }
+
+        #stop:hover {
+            background-color: darkred;
+        }
+
+        #calculate {
+            background-color: #3498db;
+        }
+
+        #calculate:hover {
+            background-color: #2980b9;
+        }
+
+        #start:active, #stop:active, #calculate:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+
+<body>
+
+    <input type="text" id="density" placeholder="Density g/l">
+    <label for="density">Density g/l</label>
+
+    <input type="text" id="milliliters" placeholder="Milliliters">
+    <label for="milliliters">Milliliters</label>
+
+    <input type="text" id="millOutput" placeholder="Mill output t/h">
+    <label for="millOutput">Mill output t/h</label>
+
+    <input type="text" id="time" placeholder="Time, s" readonly>
+    <label for="time">Time, s</label>
+
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
+    <button id="calculate">Calculate</button>
+
+    <input type="text" id="result" placeholder="Dosage g/t" readonly>
+    <label for="result">Dosage g/t</label>
+
+    <script>
+        let startTime;
+        let timerInterval;
+
+        document.getElementById('start').addEventListener('click', function () {
+            document.getElementById('milliliters').value = "";
+            document.getElementById('result').value = "";
+            
+            startTime = new Date();
+            timerInterval = setInterval(updateTime, 1000);
+
+            document.getElementById('start').disabled = true;
+        });
+
+        document.getElementById('stop').addEventListener('click', function () {
+            clearInterval(timerInterval); 
+            document.getElementById('start').disabled = false;
+        });
+
+        document.getElementById('calculate').addEventListener('click', calculateDosage);
+
+        function updateTime() {
+            let currentTime = new Date();
+            let timeDiff = (currentTime - startTime) / 1000;
+            document.getElementById('time').value = Math.round(timeDiff);
+        }
+
+        function calculateDosage() {
+            const mlValue = document.getElementById('milliliters').value.replace(',', '.');
+            const millOutputValue = document.getElementById('millOutput').value.replace(',', '.');
+            const timeValue = document.getElementById('time').value.replace(',', '.');
+            const densityValue = document.getElementById('density').value.replace(',', '.');
+
+            const ml = parseFloat(mlValue);
+            const millOutput = parseFloat(millOutputValue);
+            const time = parseFloat(timeValue);
+            const density = parseFloat(densityValue);
+
+            if (isNaN(ml) || isNaN(millOutput) || isNaN(time) || isNaN(density) || time === 0 || millOutput === 0) {
+                alert("Please enter valid numeric values and ensure time and mill output are not zero.");
+                return;
+            }
+
+            const result = Math.round((ml * density * (3600 / time)) / millOutput);
+
+            document.getElementById('result').value = Math.round(result);
+        }
+    </script>
+</body>
+
+</html>
